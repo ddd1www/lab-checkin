@@ -1,546 +1,754 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>课题组打卡 · 姓名与位置</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title>课题组打卡</title>
+
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #f5f7fa 0%, #e9edf2 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
-            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(145deg, #f5f7fa, #e9edf2);
+            font-family:
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                "Microsoft YaHei",
+                sans-serif;
+            color: #1e2b3a;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 36px;
-            box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.25), 0 8px 20px -6px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 440px;
-            padding: 32px 28px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            transition: transform 0.2s ease;
-        }
-
-        .card:active {
-            transform: scale(0.995);
+            padding: 30px 26px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow:
+                0 20px 40px rgba(0, 20, 30, 0.18),
+                0 5px 14px rgba(0, 0, 0, 0.08);
         }
 
         h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #1e2b3a;
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: 8px;
+            font-size: 1.9rem;
+            font-weight: 700;
         }
 
         h1 span {
+            padding: 5px 11px;
+            border-radius: 20px;
             background: #2a7faa;
-            color: white;
-            font-size: 1.2rem;
+            color: #fff;
+            font-size: 1rem;
             font-weight: 500;
-            padding: 4px 12px;
-            border-radius: 40px;
-            letter-spacing: 0.3px;
         }
 
         .subtitle {
-            color: #5b6f82;
-            font-size: 0.95rem;
-            margin-bottom: 28px;
-            padding-bottom: 6px;
-            border-bottom: 1.5px dashed #cbd5e0;
-            font-weight: 400;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #cbd5e0;
+            color: #5b6f82;
+            font-size: 0.92rem;
         }
 
-        .subtitle i {
-            font-style: normal;
+        .subtitle span {
+            padding: 4px 9px;
+            border-radius: 15px;
             background: #e2eaf1;
-            border-radius: 30px;
-            padding: 4px 10px;
-            font-size: 0.8rem;
             color: #1e3b4f;
+            font-size: 0.76rem;
         }
 
         .field {
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
         label {
             display: block;
-            font-size: 0.9rem;
-            font-weight: 500;
+            margin-bottom: 7px;
             color: #1e3b4f;
-            margin-bottom: 6px;
-            letter-spacing: 0.3px;
+            font-size: 0.92rem;
+            font-weight: 600;
         }
 
-        label i {
-            font-style: normal;
+        .required {
             color: #c0392b;
-            margin-left: 4px;
         }
 
         .input-wrapper {
-            display: flex;
-            align-items: center;
-            background: white;
-            border-radius: 20px;
             border: 1.5px solid #d4e0e9;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            border-radius: 16px;
+            background: #fff;
+            transition: 0.2s ease;
         }
 
         .input-wrapper:focus-within {
             border-color: #2a7faa;
-            box-shadow: 0 0 0 4px rgba(42, 127, 170, 0.15);
+            box-shadow: 0 0 0 4px rgba(42, 127, 170, 0.13);
         }
 
-        .input-wrapper input {
+        input {
             width: 100%;
-            padding: 16px 18px;
+            padding: 15px 16px;
             border: none;
-            background: transparent;
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #0b1a26;
             outline: none;
-            border-radius: 20px;
+            border-radius: 16px;
+            background: transparent;
+            color: #0b1a26;
+            font-size: 1.05rem;
         }
 
-        .input-wrapper input::placeholder {
+        input::placeholder {
             color: #98aeba;
-            font-weight: 400;
-            font-size: 1rem;
         }
 
         .location-box {
-            background: #f0f5fa;
-            border-radius: 20px;
-            padding: 18px 18px;
-            margin-bottom: 16px;
+            min-height: 120px;
+            padding: 16px;
             border: 1px solid #cfdee9;
-            transition: all 0.2s;
-            min-height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            border-radius: 18px;
+            background: #f0f5fa;
         }
 
         .location-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
+            margin-bottom: 8px;
             color: #1e3b4f;
-            font-weight: 500;
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
-
-        .location-header .icon {
-            font-size: 1.2rem;
+            font-weight: 600;
         }
 
         #locationStatus {
+            line-height: 1.6;
             font-size: 0.95rem;
-            color: #1e2b3a;
-            word-break: break-word;
-            line-height: 1.5;
-            transition: color 0.2s;
         }
 
         .coords {
-            font-size: 0.9rem;
-            color: #2a5f7a;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 12px;
-            margin-top: 6px;
-            display: none; /* 初始隐藏，有数据时显示 */
+            display: none;
+            margin-top: 10px;
+            padding: 10px 12px;
             border: 1px solid #cbdae5;
-            word-break: break-all;
-            line-height: 1.4;
+            border-radius: 12px;
+            background: #fff;
+            color: #2a5f7a;
+            line-height: 1.6;
+            font-size: 0.88rem;
+            word-break: break-word;
         }
 
-        .error-text {
-            color: #b13e3e;
-            font-weight: 500;
-            background: #ffe9e9;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 0.9rem;
+        .tip {
+            margin-top: 9px;
+            color: #71879a;
+            line-height: 1.5;
+            font-size: 0.78rem;
         }
 
         .button-group {
             display: flex;
             gap: 12px;
-            margin-top: 10px;
-            flex-wrap: wrap;
+            margin-top: 8px;
         }
 
-        .btn {
+        button {
             flex: 1;
-            padding: 16px 12px;
-            border-radius: 40px;
+            min-height: 50px;
+            padding: 12px;
             border: none;
-            font-size: 1rem;
+            border-radius: 28px;
+            font-size: 0.98rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.15s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            white-space: nowrap;
-            background: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02);
-            border: 1.5px solid transparent;
+            transition: 0.15s ease;
         }
 
-        .btn-primary {
-            background: #1e3b4f;
-            color: white;
-            box-shadow: 0 10px 18px -8px rgba(30, 59, 79, 0.3);
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
         }
 
-        .btn-primary:hover {
-            background: #14303f;
-            transform: translateY(-1px);
-        }
-
-        .btn-primary:active {
-            transform: translateY(1px);
-            box-shadow: 0 5px 12px -6px #1e3b4f;
-        }
-
-        .btn-secondary {
-            background: white;
-            border-color: #cbdae5;
+        .btn-location {
+            border: 1px solid #cbdae5;
+            background: #fff;
             color: #1e3b4f;
         }
 
-        .btn-secondary:hover {
-            background: #f6faff;
-            border-color: #a0bbce;
+        .btn-location:hover:not(:disabled) {
+            background: #f5faff;
         }
 
-        .btn-secondary:active {
-            background: #e8f0f7;
+        .btn-checkin {
+            background: #1e3b4f;
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(30, 59, 79, 0.2);
         }
 
-        .btn:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none;
+        .btn-checkin:hover:not(:disabled) {
+            background: #14303f;
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(1px);
         }
 
         .feedback {
-            margin-top: 20px;
-            padding: 14px 18px;
-            border-radius: 20px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            text-align: left;
+            display: none;
+            margin-top: 18px;
+            padding: 13px 16px;
+            border: 1px solid #b8d9b8;
+            border-radius: 16px;
             background: #e6f2e6;
             color: #1f5e3a;
-            border: 1px solid #b8d9b8;
-            display: none;
+            line-height: 1.6;
+            font-size: 0.92rem;
+            white-space: pre-line;
             word-break: break-word;
-            white-space: pre-line; /* 支持换行 */
         }
 
         .feedback.show {
             display: block;
-            animation: fadeIn 0.25s ease;
         }
 
         .feedback.error {
+            border-color: #e6bcbc;
             background: #fdeaea;
             color: #a12b2b;
-            border-color: #e6bcbc;
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(8px); }
-            100% { opacity: 1; transform: translateY(0); }
         }
 
         .note {
-            font-size: 0.8rem;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #d8e2eb;
             color: #7e93a5;
             text-align: center;
-            margin-top: 22px;
-            border-top: 1px solid #d8e2eb;
-            padding-top: 16px;
-        }
-
-        .note i {
-            font-style: normal;
-            display: inline-block;
-            background: #e2eaf1;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #1a3a4f;
+            font-size: 0.78rem;
+            line-height: 1.5;
         }
 
         @media (max-width: 380px) {
-            .card { padding: 24px 18px; }
-            h1 { font-size: 1.7rem; }
-            .btn { font-size: 0.9rem; padding: 14px 8px; }
+            body {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 24px 18px;
+            }
+
+            h1 {
+                font-size: 1.65rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
+
 <body>
-<div class="card">
-    <h1>📋 打卡 <span>课题组</span></h1>
-    <div class="subtitle">
-        填写姓名并获取位置
-        <i>自动定位</i>
-    </div>
+    <main class="card">
+        <h1>
+            📋 打卡
+            <span>课题组</span>
+        </h1>
 
-    <div class="field">
-        <label for="nameInput">姓名 <i>*</i></label>
-        <div class="input-wrapper">
-            <input type="text" id="nameInput" placeholder="例如：张三" autocomplete="name" maxlength="30">
+        <div class="subtitle">
+            填写姓名并获取当前位置
+            <span>连续定位</span>
         </div>
-    </div>
 
-    <div class="field">
-        <label>📍 当前位置</label>
-        <div class="location-box" id="locationBox">
-            <div class="location-header">
-                <span class="icon">🌍</span> 定位状态
+        <div class="field">
+            <label for="nameInput">
+                姓名 <span class="required">*</span>
+            </label>
+
+            <div class="input-wrapper">
+                <input
+                    id="nameInput"
+                    type="text"
+                    placeholder="例如：张三"
+                    autocomplete="name"
+                    maxlength="30"
+                >
             </div>
-            <div id="locationStatus">尚未获取位置信息</div>
-            <div id="coordsDisplay" class="coords"></div>
         </div>
-    </div>
 
-    <div class="button-group">
-        <button class="btn btn-secondary" id="locateBtn">
-            <span>📡</span> 获取位置
-        </button>
-        <button class="btn btn-primary" id="checkinBtn">
-            <span>✅</span> 打卡
-        </button>
-    </div>
+        <div class="field">
+            <label>📍 当前位置</label>
 
-    <div class="feedback" id="feedback"></div>
+            <div class="location-box">
+                <div class="location-header">
+                    <span>🌍</span>
+                    <span>定位状态</span>
+                </div>
 
-    <div class="note">
-        <i>位置将用于课题组打卡记录，请授权定位</i>
-    </div>
-</div>
+                <div id="locationStatus">
+                    尚未获取位置信息
+                </div>
 
-<script>
-    (function() {
-        const nameInput = document.getElementById('nameInput');
-        const locateBtn = document.getElementById('locateBtn');
-        const checkinBtn = document.getElementById('checkinBtn');
-        const locationStatus = document.getElementById('locationStatus');
-        const coordsDisplay = document.getElementById('coordsDisplay');
-        const feedback = document.getElementById('feedback');
+                <div id="coordsDisplay" class="coords"></div>
 
-        // 状态变量
-        let currentPosition = null; // 存储 { latitude, longitude, accuracy, address }
-        let locationError = null;
-        let isLocating = false;
+                <div class="tip">
+                    点击“获取位置”后，系统会连续采集多个位置结果，并选择误差最小的一次。
+                </div>
+            </div>
+        </div>
 
-        // 显示反馈信息
-        function showFeedback(message, isError = false) {
-            feedback.textContent = message;
-            feedback.classList.add('show');
-            if (isError) {
-                feedback.classList.add('error');
-            } else {
-                feedback.classList.remove('error');
+        <div class="button-group">
+            <button
+                id="locateBtn"
+                class="btn-location"
+                type="button"
+            >
+                📡 获取位置
+            </button>
+
+            <button
+                id="checkinBtn"
+                class="btn-checkin"
+                type="button"
+            >
+                ✅ 打卡
+            </button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div class="note">
+            浏览器定位结果受设备、GPS、Wi-Fi 和网络环境影响，页面显示的精度是系统估算值。
+        </div>
+    </main>
+
+    <script>
+        (() => {
+            "use strict";
+
+            /*
+             * 高德 Web 服务 Key。
+             *
+             * 请替换为你自己的 Key：
+             * const AMAP_KEY = "你的高德Key";
+             *
+             * 如果暂时没有高德 Key，地址解析会失败，
+             * 但仍然可以使用经纬度完成打卡。
+             */
+            const AMAP_KEY = "YOUR_AMAP_KEY";
+
+            const MAX_LOCATING_TIME = 8000;
+            const TARGET_ACCURACY = 30;
+
+            const nameInput = document.getElementById("nameInput");
+            const locateBtn = document.getElementById("locateBtn");
+            const checkinBtn = document.getElementById("checkinBtn");
+            const locationStatus = document.getElementById("locationStatus");
+            const coordsDisplay = document.getElementById("coordsDisplay");
+            const feedback = document.getElementById("feedback");
+
+            let currentPosition = null;
+            let locationError = "";
+            let isLocating = false;
+            let watchId = null;
+            let locateTimer = null;
+
+            function showFeedback(message, isError = false) {
+                feedback.textContent = message;
+                feedback.classList.toggle("error", isError);
+                feedback.classList.add("show");
             }
-            clearTimeout(window.feedbackTimer);
-            window.feedbackTimer = setTimeout(() => {
-                feedback.classList.remove('show');
-            }, 8000); // 延长显示时间，方便看地址
-        }
 
-        // 更新定位UI
-        function updateLocationUI() {
-            if (isLocating) {
-                locationStatus.textContent = '正在获取位置...';
-                locationStatus.style.color = '#2a7faa';
-                coordsDisplay.style.display = 'none';
-                return;
+            function hideFeedback() {
+                feedback.textContent = "";
+                feedback.classList.remove("show", "error");
             }
 
-            if (locationError) {
-                locationStatus.innerHTML = `<span class="error-text">⚠️ ${locationError}</span>`;
-                coordsDisplay.style.display = 'none';
-                return;
-            }
-
-            if (currentPosition) {
-                locationStatus.textContent = '✅ 位置已获取';
-                locationStatus.style.color = '#1f5e3a';
-                
-                // 如果已有地址显示地址，否则显示经纬度或正在解析
-                if (currentPosition.address) {
-                    coordsDisplay.textContent = `地址：${currentPosition.address}`;
-                } else {
-                    coordsDisplay.textContent = `经纬度：${currentPosition.longitude.toFixed(6)}, ${currentPosition.latitude.toFixed(6)} (正在解析街道地址...)`;
+            function formatAccuracy(accuracy) {
+                if (!Number.isFinite(accuracy)) {
+                    return "未知";
                 }
-                coordsDisplay.style.display = 'block';
-            } else {
-                locationStatus.textContent = '尚未获取位置信息';
-                locationStatus.style.color = '#1e2b3a';
-                coordsDisplay.style.display = 'none';
-            }
-        }
 
-        // 获取位置及逆地理编码
-        function getLocation() {
-            if (isLocating) return;
-            if (!navigator.geolocation) {
-                locationError = '您的浏览器不支持地理定位';
-                updateLocationUI();
-                showFeedback('❌ 浏览器不支持地理定位', true);
-                return;
+                if (accuracy < 10) {
+                    return `${accuracy.toFixed(1)} 米`;
+                }
+
+                return `${Math.round(accuracy)} 米`;
             }
 
-            currentPosition = null;
-            locationError = null;
-            isLocating = true;
-            updateLocationUI();
-            feedback.classList.remove('show');
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    isLocating = false;
-                    currentPosition = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy
-                    };
-                    updateLocationUI();
-                    showFeedback('📍 坐标获取成功，正在解析详细地址...', false);
-
-                    // ==========================================
-                    // 调用高德地图逆地理编码 API
-                    // 请将下面的 Key 替换为你新申请的 Web服务 Key
-                    const amapKey = '973f4b57341544a4f077f342df684799'; 
-                    // ==========================================
-                    
-                    const url = `https://restapi.amap.com/v3/geocode/regeo?location=${currentPosition.longitude},${currentPosition.latitude}&key=${amapKey}`;
-                    
-                    fetch(url)
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === '1' && data.regeocode) {
-                                currentPosition.address = data.regeocode.formatted_address;
-                                updateLocationUI();
-                                showFeedback('📍 详细地址解析成功！', false);
-                            } else {
-                                console.error('高德解析失败:', data);
-                                currentPosition.address = '解析地址失败，请重试';
-                                updateLocationUI();
-                                showFeedback('⚠️ 地址解析失败，但经纬度已获取', true);
-                            }
-                        })
-                        .catch(err => {
-                            console.error('网络请求失败:', err);
-                            currentPosition.address = '网络异常，无法解析地址';
-                            updateLocationUI();
-                            showFeedback('⚠️ 地址解析网络错误', true);
-                        });
-                },
-                (error) => {
-                    isLocating = false;
-                    currentPosition = null;
-                    switch (error.code) {
-                        case error.PERMISSION_DENIED: locationError = '您拒绝了位置权限请求。请允许定位后重试。'; break;
-                        case error.POSITION_UNAVAILABLE: locationError = '位置信息不可用，请检查设备定位功能。'; break;
-                        case error.TIMEOUT: locationError = '获取位置超时，请检查网络。'; break;
-                        default: locationError = '获取位置失败：' + error.message; break;
-                    }
-                    updateLocationUI();
-                    showFeedback('❌ ' + locationError, true);
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-            );
-        }
-
-        // 打卡逻辑
-        function handleCheckin() {
-            const name = nameInput.value.trim();
-
-            if (!name) {
-                showFeedback('✏️ 请填写您的姓名', true);
-                nameInput.focus();
-                return;
+            function formatCoordinate(value) {
+                return Number(value).toFixed(6);
             }
 
-            if (!currentPosition) {
+            function updateLocationUI() {
                 if (isLocating) {
-                    showFeedback('⏳ 正在获取位置，请稍等...', false);
-                } else if (locationError) {
-                    showFeedback('⚠️ 定位失败，请先点击“获取位置”', true);
-                } else {
-                    showFeedback('📍 请先点击“获取位置”按钮', true);
+                    locationStatus.textContent = "正在连续获取位置，请稍候……";
+                    locationStatus.style.color = "#2a7faa";
+                    coordsDisplay.style.display = "none";
+                    return;
                 }
-                return;
+
+                if (locationError) {
+                    locationStatus.textContent = `⚠️ ${locationError}`;
+                    locationStatus.style.color = "#b13e3e";
+                    coordsDisplay.style.display = "none";
+                    return;
+                }
+
+                if (!currentPosition) {
+                    locationStatus.textContent = "尚未获取位置信息";
+                    locationStatus.style.color = "#1e2b3a";
+                    coordsDisplay.style.display = "none";
+                    return;
+                }
+
+                locationStatus.textContent = "✅ 位置已获取";
+                locationStatus.style.color = "#1f5e3a";
+
+                const {
+                    latitude,
+                    longitude,
+                    accuracy,
+                    address
+                } = currentPosition;
+
+                const addressText = address
+                    ? `地址：${address}`
+                    : "地址：尚未解析";
+
+                coordsDisplay.textContent =
+                    `${addressText}\n` +
+                    `经纬度：${formatCoordinate(longitude)}, ${formatCoordinate(latitude)}\n` +
+                    `预计误差：${formatAccuracy(accuracy)}`;
+
+                coordsDisplay.style.display = "block";
             }
 
-            // 如果没有拿到地址（可能还在请求中或失败），给出提示
-            if (!currentPosition.address) {
-                showFeedback('⏳ 正在解析您的详细地址，请等提示“解析成功”后再打卡...', true);
-                return;
+            function stopWatching() {
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+
+                if (locateTimer !== null) {
+                    clearTimeout(locateTimer);
+                    locateTimer = null;
+                }
+
+                isLocating = false;
+                locateBtn.disabled = false;
+                checkinBtn.disabled = false;
             }
 
-            const finalAddress = currentPosition.address;
-            const now = new Date();
-            const timeStr = now.toLocaleString('zh-CN', { hour12: false });
+            function isBetterPosition(newPosition, oldPosition) {
+                if (!oldPosition) {
+                    return true;
+                }
 
-            // 显示打卡成功反馈
-            const successMsg = `✅ 打卡成功！\n姓名：${name}\n位置：${finalAddress}\n时间：${timeStr}`;
-            showFeedback(successMsg, false);
+                return newPosition.accuracy < oldPosition.accuracy;
+            }
 
-            // 在控制台打印，方便后续接入数据库
-            console.log('【打卡记录】', {
-                name: name,
-                address: finalAddress,
-                latitude: currentPosition.latitude,
-                longitude: currentPosition.longitude,
-                time: timeStr
+            function getLocation() {
+                if (isLocating) {
+                    return;
+                }
+
+                if (!window.isSecureContext && location.hostname !== "localhost") {
+                    locationError =
+                        "定位功能需要在 HTTPS 页面中使用，请通过 HTTPS 打开本页面。";
+
+                    updateLocationUI();
+                    showFeedback(locationError, true);
+                    return;
+                }
+
+                if (!navigator.geolocation) {
+                    locationError = "当前浏览器不支持地理定位。";
+                    updateLocationUI();
+                    showFeedback(locationError, true);
+                    return;
+                }
+
+                currentPosition = null;
+                locationError = "";
+                isLocating = true;
+
+                locateBtn.disabled = true;
+                checkinBtn.disabled = true;
+
+                hideFeedback();
+                updateLocationUI();
+
+                let bestPosition = null;
+
+                watchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const coords = position.coords;
+
+                        const nextPosition = {
+                            latitude: coords.latitude,
+                            longitude: coords.longitude,
+                            accuracy: coords.accuracy,
+                            altitude: coords.altitude,
+                            heading: coords.heading,
+                            speed: coords.speed,
+                            address: ""
+                        };
+
+                        if (isBetterPosition(nextPosition, bestPosition)) {
+                            bestPosition = nextPosition;
+                            currentPosition = bestPosition;
+                            updateLocationUI();
+                        }
+
+                        /*
+                         * 如果误差已经达到 30 米以内，
+                         * 可以提前停止继续采集。
+                         */
+                        if (
+                            bestPosition &&
+                            Number.isFinite(bestPosition.accuracy) &&
+                            bestPosition.accuracy <= TARGET_ACCURACY
+                        ) {
+                            finishLocation(bestPosition);
+                        }
+                    },
+                    (error) => {
+                        stopWatching();
+
+                        currentPosition = null;
+
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                locationError =
+                                    "您拒绝了位置权限，请在浏览器设置中允许定位权限后重试。";
+                                break;
+
+                            case error.POSITION_UNAVAILABLE:
+                                locationError =
+                                    "无法获取位置信息，请检查手机 GPS 或 Wi-Fi 定位功能。";
+                                break;
+
+                            case error.TIMEOUT:
+                                locationError =
+                                    "获取位置超时，请检查网络和设备定位功能。";
+                                break;
+
+                            default:
+                                locationError =
+                                    `获取位置失败：${error.message || "未知错误"}`;
+                        }
+
+                        updateLocationUI();
+                        showFeedback(`❌ ${locationError}`, true);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: MAX_LOCATING_TIME,
+                        maximumAge: 0
+                    }
+                );
+
+                locateTimer = setTimeout(() => {
+                    if (bestPosition) {
+                        finishLocation(bestPosition);
+                    } else {
+                        stopWatching();
+
+                        locationError =
+                            "暂时没有获取到有效位置，请确认已开启定位权限后重试。";
+
+                        updateLocationUI();
+                        showFeedback(`❌ ${locationError}`, true);
+                    }
+                }, MAX_LOCATING_TIME);
+            }
+
+            function finishLocation(position) {
+                if (!isLocating) {
+                    return;
+                }
+
+                stopWatching();
+
+                currentPosition = position;
+                locationError = "";
+
+                updateLocationUI();
+
+                const accuracyText = formatAccuracy(position.accuracy);
+
+                showFeedback(
+                    `📍 坐标获取成功，预计误差约 ${accuracyText}，正在解析地址……`
+                );
+
+                reverseGeocode(position);
+            }
+
+            async function reverseGeocode(position) {
+                if (
+                    !AMAP_KEY ||
+                    AMAP_KEY === "YOUR_AMAP_KEY"
+                ) {
+                    currentPosition.address = "";
+                    updateLocationUI();
+
+                    showFeedback(
+                        "📍 已获得经纬度，但还没有配置高德 Key。\n" +
+                        "打卡时将使用经纬度记录。",
+                        false
+                    );
+
+                    return;
+                }
+
+                const url = new URL(
+                    "https://restapi.amap.com/v3/geocode/regeo"
+                );
+
+                url.searchParams.set(
+                    "location",
+                    `${position.longitude},${position.latitude}`
+                );
+
+                url.searchParams.set("key", AMAP_KEY);
+                url.searchParams.set("extensions", "base");
+                url.searchParams.set("output", "JSON");
+
+                try {
+                    const response = await fetch(url.toString(), {
+                        method: "GET",
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === "1" && data.regeocode) {
+                        currentPosition.address =
+                            data.regeocode.formatted_address ||
+                            "高德未返回详细地址";
+
+                        updateLocationUI();
+                        showFeedback("📍 详细地址解析成功！");
+                    } else {
+                        throw new Error(data.info || "高德地址解析失败");
+                    }
+                } catch (error) {
+                    console.error("逆地理编码失败：", error);
+
+                    currentPosition.address = "";
+                    updateLocationUI();
+
+                    showFeedback(
+                        "⚠️ 地址解析失败，但经纬度已经获取。\n" +
+                        "打卡时将使用经纬度记录。",
+                        true
+                    );
+                }
+            }
+
+            function handleCheckin() {
+                const name = nameInput.value.trim();
+
+                if (!name) {
+                    showFeedback("✏️ 请填写您的姓名。", true);
+                    nameInput.focus();
+                    return;
+                }
+
+                if (isLocating) {
+                    showFeedback("⏳ 正在获取位置，请稍候。");
+                    return;
+                }
+
+                if (!currentPosition) {
+                    showFeedback("📍 请先点击“获取位置”按钮。", true);
+                    return;
+                }
+
+                const now = new Date();
+
+                const timeText = now.toLocaleString("zh-CN", {
+                    hour12: false
+                });
+
+                const addressText =
+                    currentPosition.address || "未解析地址";
+
+                const record = {
+                    name,
+                    address: addressText,
+                    latitude: currentPosition.latitude,
+                    longitude: currentPosition.longitude,
+                    accuracy: currentPosition.accuracy,
+                    time: timeText
+                };
+
+                const successMessage =
+                    "✅ 打卡成功！\n" +
+                    `姓名：${name}\n` +
+                    `位置：${addressText}\n` +
+                    `经纬度：${formatCoordinate(record.longitude)}, ${formatCoordinate(record.latitude)}\n` +
+                    `预计误差：${formatAccuracy(record.accuracy)}\n` +
+                    `时间：${timeText}`;
+
+                showFeedback(successMessage);
+
+                /*
+                 * 当前只是打印到控制台。
+                 * 后续接入后端时，可以在这里使用 fetch 发送 record。
+                 *
+                 * 示例：
+                 *
+                 * fetch("/api/checkin", {
+                 *     method: "POST",
+                 *     headers: {
+                 *         "Content-Type": "application/json"
+                 *     },
+                 *     body: JSON.stringify(record)
+                 * });
+                 */
+                console.log("【打卡记录】", record);
+            }
+
+            locateBtn.addEventListener("click", getLocation);
+            checkinBtn.addEventListener("click", handleCheckin);
+
+            nameInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    handleCheckin();
+                }
             });
-        }
 
-        // 绑定事件
-        locateBtn.addEventListener('click', getLocation);
-        checkinBtn.addEventListener('click', handleCheckin);
-        
-        // 初始化
-        updateLocationUI();
-    })();
-</script>
+            updateLocationUI();
+        })();
+    </script>
 </body>
 </html>
