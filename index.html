@@ -171,16 +171,16 @@
         }
 
         .coords {
-            font-family: 'SF Mono', 'Menlo', monospace;
             font-size: 0.9rem;
             color: #2a5f7a;
             background: white;
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-radius: 12px;
             margin-top: 6px;
-            display: inline-block;
+            display: none; /* 初始隐藏，有数据时显示 */
             border: 1px solid #cbdae5;
             word-break: break-all;
+            line-height: 1.4;
         }
 
         .error-text {
@@ -262,12 +262,13 @@
             border-radius: 20px;
             font-size: 0.95rem;
             font-weight: 500;
-            text-align: center;
+            text-align: left;
             background: #e6f2e6;
             color: #1f5e3a;
             border: 1px solid #b8d9b8;
             display: none;
             word-break: break-word;
+            white-space: pre-line; /* 支持换行 */
         }
 
         .feedback.show {
@@ -305,18 +306,10 @@
             color: #1a3a4f;
         }
 
-        /* 小屏适配 */
         @media (max-width: 380px) {
-            .card {
-                padding: 24px 18px;
-            }
-            h1 {
-                font-size: 1.7rem;
-            }
-            .btn {
-                font-size: 0.9rem;
-                padding: 14px 8px;
-            }
+            .card { padding: 24px 18px; }
+            h1 { font-size: 1.7rem; }
+            .btn { font-size: 0.9rem; padding: 14px 8px; }
         }
     </style>
 </head>
@@ -328,7 +321,6 @@
         <i>自动定位</i>
     </div>
 
-    <!-- 姓名输入 -->
     <div class="field">
         <label for="nameInput">姓名 <i>*</i></label>
         <div class="input-wrapper">
@@ -336,7 +328,6 @@
         </div>
     </div>
 
-    <!-- 地理位置展示 -->
     <div class="field">
         <label>📍 当前位置</label>
         <div class="location-box" id="locationBox">
@@ -344,11 +335,10 @@
                 <span class="icon">🌍</span> 定位状态
             </div>
             <div id="locationStatus">尚未获取位置信息</div>
-            <div id="coordsDisplay" style="display: none;"></div>
+            <div id="coordsDisplay" class="coords"></div>
         </div>
     </div>
 
-    <!-- 操作按钮 -->
     <div class="button-group">
         <button class="btn btn-secondary" id="locateBtn">
             <span>📡</span> 获取位置
@@ -358,7 +348,6 @@
         </button>
     </div>
 
-    <!-- 反馈区域 -->
     <div class="feedback" id="feedback"></div>
 
     <div class="note">
@@ -368,7 +357,6 @@
 
 <script>
     (function() {
-        // --- DOM 元素 ---
         const nameInput = document.getElementById('nameInput');
         const locateBtn = document.getElementById('locateBtn');
         const checkinBtn = document.getElementById('checkinBtn');
@@ -376,12 +364,12 @@
         const coordsDisplay = document.getElementById('coordsDisplay');
         const feedback = document.getElementById('feedback');
 
-        // --- 状态变量 ---
-        let currentPosition = null;          // { latitude, longitude, accuracy }
-        let locationError = null;           // 错误信息
-        let isLocating = false;             // 是否正在定位
+        // 状态变量
+        let currentPosition = null; // 存储 { latitude, longitude, accuracy, address }
+        let locationError = null;
+        let isLocating = false;
 
-        // --- 辅助函数：显示反馈信息 ---
+        // 显示反馈信息
         function showFeedback(message, isError = false) {
             feedback.textContent = message;
             feedback.classList.add('show');
@@ -390,219 +378,168 @@
             } else {
                 feedback.classList.remove('error');
             }
-            // 5秒后自动隐藏
             clearTimeout(window.feedbackTimer);
             window.feedbackTimer = setTimeout(() => {
                 feedback.classList.remove('show');
-            }, 5000);
+            }, 8000); // 延长显示时间，方便看地址
         }
 
-        // --- 清除反馈 ---
-        function clearFeedback() {
-            feedback.classList.remove('show');
-            feedback.textContent = '';
-            clearTimeout(window.feedbackTimer);
-        }
-
-        // --- 更新定位界面 (显示状态/坐标) ---
+        // 更新定位UI
         function updateLocationUI() {
-            // 清除坐标显示内容
-            coordsDisplay.style.display = 'none';
-            coordsDisplay.textContent = '';
-
             if (isLocating) {
                 locationStatus.textContent = '正在获取位置...';
                 locationStatus.style.color = '#2a7faa';
+                coordsDisplay.style.display = 'none';
                 return;
             }
 
             if (locationError) {
                 locationStatus.innerHTML = `<span class="error-text">⚠️ ${locationError}</span>`;
+                coordsDisplay.style.display = 'none';
                 return;
             }
 
             if (currentPosition) {
-                const { latitude, longitude, accuracy } = currentPosition;
-                // 显示状态：成功
                 locationStatus.textContent = '✅ 位置已获取';
                 locationStatus.style.color = '#1f5e3a';
-
-                // 显示坐标和精度
-                const coordsText = `纬度: ${latitude.toFixed(6)}  经度: ${longitude.toFixed(6)}  精度: ±${accuracy.toFixed(1)}米`;
-                coordsDisplay.textContent = coordsText;
-                coordsDisplay.style.display = 'inline-block';
+                
+                // 如果已有地址显示地址，否则显示经纬度或正在解析
+                if (currentPosition.address) {
+                    coordsDisplay.textContent = `地址：${currentPosition.address}`;
+                } else {
+                    coordsDisplay.textContent = `经纬度：${currentPosition.longitude.toFixed(6)}, ${currentPosition.latitude.toFixed(6)} (正在解析街道地址...)`;
+                }
+                coordsDisplay.style.display = 'block';
             } else {
                 locationStatus.textContent = '尚未获取位置信息';
                 locationStatus.style.color = '#1e2b3a';
+                coordsDisplay.style.display = 'none';
             }
         }
 
-        // --- 重置位置状态（用于重新定位前清理）---
-        function resetLocationState() {
-            currentPosition = null;
-            locationError = null;
-        }
-
-        // --- 获取地理位置核心函数 ---
+        // 获取位置及逆地理编码
         function getLocation() {
-            // 如果已经在定位中，不重复发起
-            if (isLocating) {
-                showFeedback('正在定位中，请稍候...', false);
-                return;
-            }
-
-            // 检查浏览器是否支持地理定位
+            if (isLocating) return;
             if (!navigator.geolocation) {
-                locationError = '您的浏览器不支持地理定位，请更换浏览器或手动输入位置。';
+                locationError = '您的浏览器不支持地理定位';
                 updateLocationUI();
                 showFeedback('❌ 浏览器不支持地理定位', true);
                 return;
             }
 
-            // 重置错误/位置，准备新定位
-            resetLocationState();
+            currentPosition = null;
+            locationError = null;
             isLocating = true;
             updateLocationUI();
-            clearFeedback();
-
-            // 定位配置：高精度，超时10秒，缓存1分钟
-            const options = {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 60000
-            };
+            feedback.classList.remove('show');
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    // 定位成功
                     isLocating = false;
-                    const coords = position.coords;
                     currentPosition = {
-                        latitude: coords.latitude,
-                        longitude: coords.longitude,
-                        accuracy: coords.accuracy
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy
                     };
-                    locationError = null;
                     updateLocationUI();
-                    showFeedback('📍 位置获取成功！', false);
+                    showFeedback('📍 坐标获取成功，正在解析详细地址...', false);
+
+                    // ==========================================
+                    // 调用高德地图逆地理编码 API
+                    // 请将下面的 Key 替换为你新申请的 Web服务 Key
+                    const amapKey = '973f4b57341544a4f077f342df684799'; 
+                    // ==========================================
+                    
+                    const url = `https://restapi.amap.com/v3/geocode/regeo?location=${currentPosition.longitude},${currentPosition.latitude}&key=${amapKey}`;
+                    
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === '1' && data.regeocode) {
+                                currentPosition.address = data.regeocode.formatted_address;
+                                updateLocationUI();
+                                showFeedback('📍 详细地址解析成功！', false);
+                            } else {
+                                console.error('高德解析失败:', data);
+                                currentPosition.address = '解析地址失败，请重试';
+                                updateLocationUI();
+                                showFeedback('⚠️ 地址解析失败，但经纬度已获取', true);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('网络请求失败:', err);
+                            currentPosition.address = '网络异常，无法解析地址';
+                            updateLocationUI();
+                            showFeedback('⚠️ 地址解析网络错误', true);
+                        });
                 },
                 (error) => {
-                    // 定位失败
                     isLocating = false;
                     currentPosition = null;
-
-                    // 根据错误码提供友好信息
                     switch (error.code) {
-                        case error.PERMISSION_DENIED:
-                            locationError = '您拒绝了位置权限请求。请允许定位后重试。';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            locationError = '位置信息不可用，请检查设备定位功能是否开启。';
-                            break;
-                        case error.TIMEOUT:
-                            locationError = '获取位置超时，请检查网络或移至信号更好的位置。';
-                            break;
-                        default:
-                            locationError = '获取位置失败：' + error.message;
-                            break;
+                        case error.PERMISSION_DENIED: locationError = '您拒绝了位置权限请求。请允许定位后重试。'; break;
+                        case error.POSITION_UNAVAILABLE: locationError = '位置信息不可用，请检查设备定位功能。'; break;
+                        case error.TIMEOUT: locationError = '获取位置超时，请检查网络。'; break;
+                        default: locationError = '获取位置失败：' + error.message; break;
                     }
                     updateLocationUI();
                     showFeedback('❌ ' + locationError, true);
                 },
-                options
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
             );
         }
 
-        // --- 打卡逻辑 ---
+        // 打卡逻辑
         function handleCheckin() {
-            // 获取姓名并去除首尾空格
             const name = nameInput.value.trim();
 
-            // 1. 姓名校验
             if (!name) {
                 showFeedback('✏️ 请填写您的姓名', true);
                 nameInput.focus();
                 return;
             }
 
-            // 2. 位置校验：是否已获取有效位置
             if (!currentPosition) {
-                // 区分是正在定位还是尚未定位/定位失败
                 if (isLocating) {
                     showFeedback('⏳ 正在获取位置，请稍等...', false);
                 } else if (locationError) {
-                    showFeedback('⚠️ 请先获取位置，定位失败: ' + locationError, true);
+                    showFeedback('⚠️ 定位失败，请先点击“获取位置”', true);
                 } else {
                     showFeedback('📍 请先点击“获取位置”按钮', true);
                 }
                 return;
             }
 
-            // 3. 打卡成功 —— 这里可以记录数据 (演示用，在实际应用中可能需要提交到服务器)
-            const { latitude, longitude, accuracy } = currentPosition;
-            const locationStr = `纬度 ${latitude.toFixed(6)}, 经度 ${longitude.toFixed(6)} (精度 ±${accuracy.toFixed(1)}m)`;
+            // 如果没有拿到地址（可能还在请求中或失败），给出提示
+            if (!currentPosition.address) {
+                showFeedback('⏳ 正在解析您的详细地址，请等提示“解析成功”后再打卡...', true);
+                return;
+            }
 
-            // 生成一个模拟的打卡记录 (仅用于前端展示)
+            const finalAddress = currentPosition.address;
             const now = new Date();
             const timeStr = now.toLocaleString('zh-CN', { hour12: false });
 
-            // 构建反馈信息
-            const successMsg = `✅ 打卡成功！\n姓名：${name}\n位置：${locationStr}\n时间：${timeStr}`;
+            // 显示打卡成功反馈
+            const successMsg = `✅ 打卡成功！\n姓名：${name}\n位置：${finalAddress}\n时间：${timeStr}`;
             showFeedback(successMsg, false);
 
-            // 你还可以在控制台输出打卡数据，方便调试或后续接入后端
+            // 在控制台打印，方便后续接入数据库
             console.log('【打卡记录】', {
                 name: name,
-                latitude: latitude,
-                longitude: longitude,
-                accuracy: accuracy,
-                timestamp: now.toISOString(),
-                formattedTime: timeStr
+                address: finalAddress,
+                latitude: currentPosition.latitude,
+                longitude: currentPosition.longitude,
+                time: timeStr
             });
-
-            // (可选) 可在此处用 fetch 将数据发送到服务器
-            // 例如: fetch('/api/checkin', { method: 'POST', body: JSON.stringify({...}) })
         }
 
-        // --- 初始化事件绑定 ---
-        function init() {
-            // 获取位置按钮点击
-            locateBtn.addEventListener('click', getLocation);
-
-            // 打卡按钮点击
-            checkinBtn.addEventListener('click', handleCheckin);
-
-            // 当用户开始输入姓名时清除之前的错误反馈（优化体验）
-            nameInput.addEventListener('input', function() {
-                // 如果当前有错误反馈关于姓名的，自动隐藏
-                if (feedback.classList.contains('show') && feedback.textContent.includes('姓名')) {
-                    // 但保留打卡成功的反馈，用户输入时不覆盖成功信息
-                    if (!feedback.textContent.includes('打卡成功')) {
-                        clearFeedback();
-                    }
-                }
-            });
-
-            // 如果用户点击姓名输入框，清除位置错误的反馈？不完全清除，但可降低干扰。不处理也可以。
-
-            // 页面加载后自动尝试获取位置（可选，为了更好的体验）
-            // 但为了不打扰用户（比如某些浏览器会直接弹窗），这里不自动获取，由用户点击按钮触发
-            // 如果您希望自动获取，取消下面注释：
-            // setTimeout(() => { getLocation(); }, 300);
-
-            // 初始化界面
-            updateLocationUI();
-        }
-
-        // 页面加载后运行
-        window.addEventListener('load', init);
-
-        // 额外：当页面从缓存恢复时，重置定位状态（可选）
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                // 如果是缓存页面，不自动重置位置，保留上次结果
-            }
-        });
+        // 绑定事件
+        locateBtn.addEventListener('click', getLocation);
+        checkinBtn.addEventListener('click', handleCheckin);
+        
+        // 初始化
+        updateLocationUI();
     })();
 </script>
 </body>
